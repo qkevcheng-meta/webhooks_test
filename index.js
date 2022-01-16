@@ -30,6 +30,7 @@ app.get('/webhooks', function(req, res) {
 app.post('/webhooks', function(req, res) {
   if (!req.isXHubValid()) {
     console.log('Received webhooks update with invalid X-Hub-Signature');
+    console.log(req);
     res.sendStatus(401);
     return;
   }
