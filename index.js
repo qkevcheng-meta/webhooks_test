@@ -30,7 +30,9 @@ app.get('/webhooks', function(req, res) {
 
 app.post('/webhooks', function(req, res) {
   console.log('req verify token: ' + req.headers['x-hub-signature']);
-  console.log('vf: ' + process.env.VERIFY_TOKEN);
+  var hmac = crypto.createHmac("sha1", process.env.APP_SECRET);
+  hmac.update(buf, "utf-8");
+  console.log('vf: ' + "sha1=" + hmac.digest("hex"));
   var isValid = req.isXHubValid();
   console.log('isValid: ' + isValid);
   // if (!req.isXHubValid()) {
