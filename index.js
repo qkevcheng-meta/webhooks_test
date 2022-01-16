@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const xhub = require('express-x-hub');
 const app = express();
+var crypto = require('crypto');
 
 const PORT = process.env.PORT || 8080;
 
