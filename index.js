@@ -29,11 +29,11 @@ app.get('/webhooks', function(req, res) {
 });
 
 app.post('/webhooks', function(req, res) {
-  if (!req.isXHubValid()) {
-    console.log('Received webhooks update with invalid X-Hub-Signature');
-    res.sendStatus(401);
-    return;
-  }
+  // if (!req.isXHubValid()) {
+  //   console.log('Received webhooks update with invalid X-Hub-Signature');
+  //   res.sendStatus(401);
+  //   return;
+  // }
   console.log(JSON.stringify(req.body, null, 2));
   received_updates.unshift(req.body);
   res.sendStatus(200);
