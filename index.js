@@ -29,6 +29,8 @@ app.get('/webhooks', function(req, res) {
 });
 
 app.post('/webhooks', function(req, res) {
+  console.log('req verify token: ' + req.param('hub.verify_token'));
+  console.log('vf: ' + process.env.VERIFY_TOKEN);
   var isValid = req.isXHubValid();
   console.log('isValid: ' + isValid);
   // if (!req.isXHubValid()) {
