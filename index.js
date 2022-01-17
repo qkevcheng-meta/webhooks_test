@@ -5,7 +5,8 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const xhub = require('express-x-hub');
 const app = express();
-var crypto = require('crypto');
+const axios = require('axios');
+
 
 const PORT = process.env.PORT || 8080;
 
@@ -37,8 +38,28 @@ app.post('/webhooks', function(req, res) {
   //   res.sendStatus(401);
   //   return;
   // }
-  console.log(JSON.stringify(req.body, null, 2));
-  received_updates.unshift(req.body);
+  const body = req.body;
+  console.log(JSON.stringify(body, null, 2));
+  received_updates.unshift(body);
+
+  console.log(body['entry'][0]);
+
+  axios.post('http://test-wa-webhook-server.herokuapp.com:' + PORT + '/v1/messages', {
+    "preview_url": true,
+    "recipient_type": "individual",
+    "to": "wamid.HBgLMTU3MTg4ODAxNjcVAgASGBQzQTA3MzBENTY5MEQ5Q0Y3NDA4RAA=",
+    "type": "text",
+    "text": {
+      "body": "yo what's up!!!"
+    }
+  })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
   res.sendStatus(200);
 });
 
