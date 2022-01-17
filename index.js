@@ -9,8 +9,35 @@ var crypto = require('crypto');
 
 const PORT = process.env.PORT || 8080;
 
+function getSignature(buf) {
+  var hmac = crypto.createHmac("sha1", process.env.FB_APP_SECRET);
+  hmac.update(buf, "utf-8");
+  return "sha1=" + hmac.digest("hex");
+}
+
+function verifyRequest(req, res, buf, encoding) {
+  var expected = req.headers['x-hub-signature'];
+  var calculated = getSignature(buf);
+  console.log("X-Hub-Signature:", expected, "Content:", "-" + buf.toString('utf8') + "-");
+  if (expected !== calculated) {
+    throw new Error("Invalid signature.");
+  } else {
+    console.log("Valid signature!");
+  }
+}
+
+function abortOnError(err, req, res, next) {
+  if (err) {
+    console.log(err);
+    res.status(400).send({ error: "Invalid signature." });
+  } else {
+    next();
+  }
+}
+
 app.use(xhub({algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json({ verify: verifyRequest }));
+app.use(abortOnError);
 
 var received_updates = [];
 
@@ -28,23 +55,6 @@ app.get('/webhooks', function(req, res) {
 
   res.send(req.params('hub.challenge'));
 });
-
-function getSignature(buf) {
-  var hmac = crypto.createHmac("sha1", process.env.FB_APP_SECRET);
-  hmac.update(buf, "utf-8");
-  return "sha1=" + hmac.digest("hex");
-}
-
-function verifyRequest(req, res, buf, encoding) {
-  var expected = req.headers['x-hub-signature'];
-  var calculated = getSignature(buf);
-  console.log("X-Hub-Signature:", expected, "Content:", "-" + buf.toString('utf8') + "-");
-  if (expected !== calculated) {
-    throw new Error("Invalid signature.");
-  } else {
-    console.log("Valid signature!");
-  }
-}
 
 app.post('/webhooks', function(req, res) {
   if (!req.isXHubValid()) {
