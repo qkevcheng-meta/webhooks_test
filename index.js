@@ -29,6 +29,12 @@ app.get('/webhooks', function(req, res) {
   res.send(req.params('hub.challenge'));
 });
 
+function getSignature(buf) {
+  var hmac = crypto.createHmac("sha1", process.env.FB_APP_SECRET);
+  hmac.update(buf, "utf-8");
+  return "sha1=" + hmac.digest("hex");
+}
+
 function verifyRequest(req, res, buf, encoding) {
   var expected = req.headers['x-hub-signature'];
   var calculated = getSignature(buf);
