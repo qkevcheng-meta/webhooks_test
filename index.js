@@ -10,7 +10,7 @@ var crypto = require('crypto');
 const PORT = process.env.PORT || 8080;
 
 app.use(xhub({algorithm: 'sha1', secret: process.env.APP_SECRET }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ verify: verifyRequest }));
 
 var received_updates = [];
 
@@ -29,18 +29,23 @@ app.get('/webhooks', function(req, res) {
   res.send(req.params('hub.challenge'));
 });
 
+function verifyRequest(req, res, buf, encoding) {
+  var expected = req.headers['x-hub-signature'];
+  var calculated = getSignature(buf);
+  console.log("X-Hub-Signature:", expected, "Content:", "-" + buf.toString('utf8') + "-");
+  if (expected !== calculated) {
+    throw new Error("Invalid signature.");
+  } else {
+    console.log("Valid signature!");
+  }
+}
+
 app.post('/webhooks', function(req, res) {
-  console.log('req verify token: ' + req.headers['  ']);
-  var hmac = crypto.createHmac("sha1", process.env.APP_SECRET);
-  hmac.update(res, "utf-8");
-  console.log('vf: ' + "sha1=" + hmac.digest("hex"));
-  var isValid = req.isXHubValid();
-  console.log('isValid: ' + isValid);
-  // if (!req.isXHubValid()) {
-  //   console.log('Received webhooks update with invalid X-Hub-Signature');
-  //   res.sendStatus(401);
-  //   return;
-  // }
+  if (!req.isXHubValid()) {
+    console.log('Received webhooks update with invalid X-Hub-Signature');
+    res.sendStatus(401);
+    return;
+  }
   console.log(JSON.stringify(req.body, null, 2));
   received_updates.unshift(req.body);
   res.sendStatus(200);
