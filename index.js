@@ -11,7 +11,6 @@ const PORT = process.env.PORT || 8080;
 
 app.use(xhub({algorithm: 'sha1', secret: process.env.APP_SECRET }));
 app.use(bodyParser.json());
-app.use(abortOnError);
 
 var received_updates = [];
 
