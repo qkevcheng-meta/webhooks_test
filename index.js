@@ -19,18 +19,18 @@ app.get('/', function(req, res) {
 });
 
 app.get('/webhooks', function(req, res) {
-  if (req.param('hub.mode') != 'subscribe'
-      || req.param('hub.verify_token') != process.env.VERIFY_TOKEN) {
+  if (req.params('hub.mode') != 'subscribe'
+      || req.params('hub.verify_token') != process.env.VERIFY_TOKEN) {
     console.log('get error');
     res.sendStatus(401);
     return;
   }
 
-  res.send(req.param('hub.challenge'));
+  res.send(req.params('hub.challenge'));
 });
 
 app.post('/webhooks', function(req, res) {
-  console.log('req verify token: ' + req.headers['x-hub-signature']);
+  console.log('req verify token: ' + req.headers['  ']);
   var hmac = crypto.createHmac("sha1", process.env.APP_SECRET);
   hmac.update(res, "utf-8");
   console.log('vf: ' + "sha1=" + hmac.digest("hex"));
